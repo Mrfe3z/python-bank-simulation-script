@@ -145,15 +145,24 @@ def main():
 					option 3: 'deposit'
 					option 4: log out
 					''')
+
 				while True:
 					choice = input("--choose option:\n ")
-					if choice == '2':
+					if choice == '1':
+						print('--TRANSFER--')
+						amount = input(' enter transfer amount: ')
+						receipient = input('enter receiver\'s username: ') 
+					elif choice == '2':
 						print('--BALANCE--')
 						print(f'your available balance is {users_information[username].get('balance')}'.capitalize())
+					elif choice == '4':
+						print('--DEPOSIT--')
+						amount = input('enter deposit amount:')
 					elif choice == '4':
 						print('logged out successfully')
 						login[username] = False
 						break
+
 
 		
 
