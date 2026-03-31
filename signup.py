@@ -4,6 +4,7 @@ users_information = {}
 login = {}
 
 filename = 'users_information.json'
+session_file = 'login.json'
 try:
 	with open(filename) as f:
 		users_information = json.load(f)
@@ -11,7 +12,7 @@ except FileNotFoundError as e:
 	print(e)
 
 try:
-	with open('login.json') as f:
+	with open(session_file) as f:
 		login = json.load(f)
 except FileNotFoundError as e:
 	print(e)
@@ -53,7 +54,7 @@ def signup(users_information, login, username, password, firstname, lastname, ba
 	login[username] = False
 	with open(filename, 'w') as f:
 		json.dump(users_information,f, indent=4)
-	with open('login.json', 'w') as f:
+	with open(session_file, 'w') as f:
 		json.dump(login, f, indent=4)
 
 def log_in(users_information, username, password):
@@ -71,93 +72,159 @@ def log_in(users_information, username, password):
 
 	login[username] = True
 
-def deposit(amount=0):
-	for user in users_information:
-		if not login[user]:
-			return False
-		new_balance = users_information[user]['balance'] = users_information[user].get('balance',0) + amount
-		users_information[user]['balance'] = new_balance
-		return True
+def deposit(users_information,login, username, amount=0):
+	if not login[username]:
+		print('please log in first!')
+		return False
 
-def create_banking_pin(pin = 0000):
-	for user in users_information:
-		if not login[user]:
-			return False
+	pin_code = users_information[username].get('pin')
+	if not pin_code:
+		print('pin not set.')
+		pin_prompt = input('create pin: y/n? ').lower()
+		create_banking_pin(users_information,username, pin_prompt)
+		return False
 
-		pin = str(pin)
-		if pin == '1234':
-			print(f'"{pin}" is not a safe password, choose another')
-			return False
-		if len(pin) != 4:
-			print('pin must be exactly 4 numbers')
-			return False
-		if not pin.isdigit():
-			return False
-		users_information[user]["pin"] = pin
-		return True
+	# entered_pin = input('enter your 4 digits pin to confirm: ')
+	trial = 4
+	while trial > 0:
+		entered_pin = input('enter your 4 digits pin to confirm: ')
+		print(type(pin_code), type(entered_pin))
+		if entered_pin != pin_code:
+			print('incorrect pin!!', '3 more trials')
+			trial -= 1
+		print('pin does not match!!. ACCESS DENIED!!')
+	return False
+	
+	new_balance = users_information[username].get('balance',0) + amount
+	users_information[username]['balance'] = new_balance
+	
+	with open(filename, 'a') as f:
+		json.dump(users_information, f, indent=4)
+	return True
 
+def create_banking_pin(users_information, username, pin = '0000'):
+	if not login[username]:
+		print('please log in first!')
+		return False
 
-def transfer(amount, userA, userB):
-	for user in users_information:
-		if not login[user]:
-			return False
-		if userB not in users_information:
-			print('user does not exist')
-			return False
+	pin = input('create a 4 digit pin: ')
+	if pin == '1234':
+		print(f'"{pin}" is not a safe password, choose another')
+		return False
+	if len(pin) != 4:
+		print('pin must be exactly 4 numbers')
+		return False
+	if not pin.isdigit():
+		return False
+	
+	users_information[username]["pin"] = pin
 
-		new_balance = users_information[userA].get('balance', 0) - amount
-		if new_balance < 0:
-			return False
+	with open(filename,'w') as f:
+		json.dump(users_information, f, indent=4)
 
-		users_information[userB] = users_information[userB].get('balance', 0) + amount
+	print('pin created successfully')
+	return True
 
-		users_information[userA]['balance'] = new_balance
-		print(users_information)
-		return True
+def transfer(users_information, amount, userA, userB):
+	if not login[userA]:
+		print('please log in first!')
+		return False
+
+	if userB not in users_information:
+		print('user does not exist')
+		return False
+
+	pin_code = users_information[userA].get('pin')
+	if not pin_code:
+		print('pin not set.')
+		return False
+
+	amount = int(amount)
+
+	trial = 4
+	while trial > 0:
+		entered_pin = input(f'enter your 4 digits pin to confirm the transfer of {amount} to {userB}: ')
+		if entered_pin != pin_code:
+			print('incorrect pin!!', '3 more trials')
+			trial -= 1
+		print('pin does not match!!. ACCESS DENIED!!')
+		return False
+
+	new_balance = users_information[userA].get('balance', 0) - amount
+	if new_balance < 0:
+		return False
+
+	users_information[userB] = users_information[userB].get('balance', 0) + amount
+
+	users_information[userA]['balance'] = new_balance
+	# print(users_information)
+	
+	with open(filename,'w') as f:
+		json.dump(users_information, f, indent=4)
+	print('transfer successful.')
+	return True
 
 def main():
+
 	print('||----HAFIZ TEST BANKING-----||')
 	print(' ')
-	print('''options:
+	option = ('''options:
 		option 1: login 
 		option 2: signup
 		option 3: quit
 		''')
+	print(option)
 	# choice = input("choose option:\n ")
 
 	while True:
+		print(option)
 		choice = input("choose option:\n ")
 		if choice == '1':
 			print('||--LOG-IN--||')
 			print('')
+
 			username = input('enter username: ')
 			password = input('enter password: ')
 			print('')
+
 			log_in(users_information, username, password)
-			if login[username]:
+
+			if login.get(username):
 				print(f'Welcome {(username).upper()}')
 				print('')
 
 				print('what would you like to do today?: ')
-				print('''options:
+				icons = ('''options:
 					option 1: 'transfer'
 					option 2: 'check balance'
 					option 3: 'deposit'
 					option 4: log out
 					''')
+				print(icons)
 
 				while True:
+					print(icons)
 					choice = input("--choose option:\n ")
 					if choice == '1':
 						print('--TRANSFER--')
 						amount = input(' enter transfer amount: ')
-						receipient = input('enter receiver\'s username: ') 
+						receipient = input('enter receipient\'s username: ')
+						print('')
+
+						transfer(users_information, amount, username, receipient)
+
 					elif choice == '2':
 						print('--BALANCE--')
 						print(f'your available balance is {users_information[username].get('balance')}'.capitalize())
-					elif choice == '4':
+						print('')
+					
+					elif choice == '3':
 						print('--DEPOSIT--')
-						amount = input('enter deposit amount:')
+						amount = input(' enter Deposit amount: ')
+						print('')
+						balance = deposit(users_information, login, username, amount)
+						print(balance)
+
 					elif choice == '4':
 						print('logged out successfully')
 						login[username] = False

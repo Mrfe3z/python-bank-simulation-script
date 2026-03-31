@@ -3,7 +3,8 @@
         "password": "Abdulfeez04",
         "firstname": "ABDULHAFIZ",
         "lastname": "AHMAD",
-        "balance": 0
+        "balance": 0,
+        "pin": "1245"
     },
     "mrfe3z04": {
         "password": "Mrfe3z04med",
@@ -20,6 +21,12 @@
     "gogfonsm": {
         "password": "Amkfty679",
         "firstname": "ABDULHAFIZ",
+        "lastname": "AHMAD",
+        "balance": 0
+    },
+    "dheeyah": {
+        "password": "Mudiya02",
+        "firstname": "MUDIYAMILAT",
         "lastname": "AHMAD",
         "balance": 0
     }
