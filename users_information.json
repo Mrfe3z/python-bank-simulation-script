@@ -3,8 +3,8 @@
         "password": "Abdulfeez04",
         "firstname": "ABDULHAFIZ",
         "lastname": "AHMAD",
-        "balance": 0,
-        "pin": "1245"
+        "balance": 2000,
+        "pin": "4583"
     },
     "mrfe3z04": {
         "password": "Mrfe3z04med",
@@ -24,10 +24,5 @@
         "lastname": "AHMAD",
         "balance": 0
     },
-    "dheeyah": {
-        "password": "Mudiya02",
-        "firstname": "MUDIYAMILAT",
-        "lastname": "AHMAD",
-        "balance": 0
-    }
+    "Dheeya": 8100
 }

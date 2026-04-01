@@ -52,9 +52,9 @@ def signup(users_information, login, username, password, firstname, lastname, ba
 	}
 
 	login[username] = False
-	with open(filename, 'W') as f:
+	with open(filename, 'w') as f:
 		json.dump(users_information,f, indent=4)
-	with open(session_file, 'W') as f:
+	with open(session_file, 'w') as f:
 		json.dump(login, f, indent=4)
 
 def log_in(users_information, username, password):
@@ -95,12 +95,12 @@ def deposit(users_information,login, username, amount=0):
 			if trial == 0:
 				print('pin does not match!!. ACCESS DENIED!!')
 				break
-				return False
+			return False
 		break		
 	new_balance = users_information[username].get('balance',0) + int(amount)
 	users_information[username]['balance'] = new_balance
 	
-	with open(filename, 'a') as f:
+	with open(filename, 'w') as f:
 		json.dump(users_information, f, indent=4)
 	print(" DEPOSIT SUCCESSFUL")
 
@@ -121,7 +121,7 @@ def create_banking_pin(users_information, username, pin = '0000'):
 	
 	users_information[username]["pin"] = pin
 
-	with open(filename,'a') as f:
+	with open(filename,'w') as f:
 		json.dump(users_information, f, indent=4)
 
 	print('pin created successfully')
@@ -137,8 +137,11 @@ def transfer(users_information, amount, userA, userB):
 		return False
 
 	pin_code = users_information[userA].get('pin')
+
 	if not pin_code:
 		print('pin not set.')
+		pin_prompt = input('create pin: y/n? ').lower()
+		create_banking_pin(users_information,userA, pin_prompt)
 		return False
 
 	amount = int(amount)
@@ -149,23 +152,25 @@ def transfer(users_information, amount, userA, userB):
 		print('')
 
 		if entered_pin != pin_code:
-			print(f'incorrect pin!!' '{trial}\' more trials')
+			print(f'incorrect pin!!, {trial} more attempts')
 			print('')
-
 			trial -= 1
-		print('pin does not match!!. ACCESS DENIED!!')
+
+		if trial == 0:
+			print('pin does not match!!. ACCESS DENIED!!')
+			break
 		return False
 
 	new_balance = users_information[userA].get('balance', 0) - amount
 	if new_balance < 0:
 		return False
 
-	users_information[userB] = users_information[userB].get('balance', 0) + amount
+	users_information[userB] = users_information[userB].get('balance') + amount
 
 	users_information[userA]['balance'] = new_balance
 	# print(users_information)
 	
-	with open(filename,'a') as f:
+	with open(filename,'w') as f:
 		json.dump(users_information, f, indent=4)
 	print('transfer successful.')
 	return True
@@ -179,11 +184,12 @@ def main():
 		option 2: signup
 		option 3: quit
 		''')
-	print(option)
+	# print(option)
 	# choice = input("choose option:\n ")
 
 	while True:
-		choice = input("choose option:\n ")
+		print(option)
+		choice = input(">> ")
 		if choice == '1':
 			print('||--LOG-IN--||')
 			print('')
@@ -205,11 +211,10 @@ def main():
 					option 3: 'deposit'
 					option 4: log out
 					''')
-				print(icons)
+				# print(icons)
 
 				while True:
-					print(icons)
-					choice = input("--choose option:\n ")
+					choice = input(f"{icons} ")
 					if choice == '1':
 						print('--TRANSFER--')
 						amount = input(' enter transfer amount: ')
@@ -228,7 +233,6 @@ def main():
 						amount = input(' enter Deposit amount: ')
 						print('')
 						balance = deposit(users_information, login, username, amount)
-						print(balance)
 
 					elif choice == '4':
 						print('logged out successfully')
