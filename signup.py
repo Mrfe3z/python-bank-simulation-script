@@ -73,7 +73,7 @@ def log_in(users_information, username, password):
 	login[username] = True
 
 def deposit(users_information,login, username, amount=0):
-	if not login[username]:
+	if not login.get(username, False):
 		print('please log in first!')
 		return False
 
@@ -88,15 +88,18 @@ def deposit(users_information,login, username, amount=0):
 	trial = 3
 	while trial > 0:
 		entered_pin = input('enter your 4 digits pin to confirm: ')
+
 		if entered_pin != pin_code:
-			print(f'incorrect pin!!. {trial} more trials')
 			trial -= 1
+			print(f'incorrect pin!!. {trial} more trials')
 			print('')
+
 			if trial == 0:
 				print('pin does not match!!. ACCESS DENIED!!')
-				break
-			return False
-		break		
+				return False
+		else:
+			break		
+
 	new_balance = users_information[username].get('balance',0) + int(amount)
 	users_information[username]['balance'] = new_balance
 	
@@ -128,7 +131,7 @@ def create_banking_pin(users_information, username, pin = '0000'):
 	return True
 
 def transfer(users_information, amount, userA, userB):
-	if not login[userA]:
+	if not login.get(userA, False):
 		print('please log in first!')
 		return False
 
@@ -152,20 +155,22 @@ def transfer(users_information, amount, userA, userB):
 		print('')
 
 		if entered_pin != pin_code:
+			trial -= 1
 			print(f'incorrect pin!!, {trial} more attempts')
 			print('')
-			trial -= 1
+			continue
 
-		if trial == 0:
-			print('pin does not match!!. ACCESS DENIED!!')
+			if trial == 0:
+				print('pin does not match!!. ACCESS DENIED!!')
+				return False
+		else:
 			break
-		return False
 
 	new_balance = users_information[userA].get('balance', 0) - amount
 	if new_balance < 0:
 		return False
 
-	users_information[userB] = users_information[userB].get('balance') + amount
+	users_information[userB]['balance'] = users_information[userB].get('balance') + amount
 
 	users_information[userA]['balance'] = new_balance
 	# print(users_information)
@@ -174,6 +179,24 @@ def transfer(users_information, amount, userA, userB):
 		json.dump(users_information, f, indent=4)
 	print('transfer successful.')
 	return True
+
+def delete_account(users_information, login, username):
+	if not login.get(username):
+		return False
+	print('confirm account deletion')
+	prompt = input('y/n').lower()
+	if prompt == 'y':
+		del users_information[username]
+		del login[username]
+	print('ACCOUNT DELETED')
+
+	with open(filename, 'w') as f:
+		json.dump(users_information, f, indent=4)
+	with open(session_file, 'w') as f:
+		json.dump(login, f, indent=4)
+
+	return True
+
 
 def main():
 
@@ -209,7 +232,8 @@ def main():
 					option 1: 'transfer'
 					option 2: 'check balance'
 					option 3: 'deposit'
-					option 4: log out
+					option 4: 'log out'
+					option 5: 'delete account'
 					''')
 				# print(icons)
 
@@ -239,6 +263,11 @@ def main():
 						login[username] = False
 						break
 
+					elif choice == '5':
+						print('ACCOUNT DELETION')
+						delete_account(users_information, login, username)
+						break
+
 
 		
 
@@ -253,7 +282,7 @@ def main():
 			firstname = input('enter first name: ')
 			lastname = input('enter last name: ')
 
-			main = signup(users_information, login, username, password, firstname, lastname)
+			signup_success = signup(users_information, login, username, password, firstname, lastname)
 
 		elif choice == '3':
 			print('THANKS FOR BANKING WITH US. GOODBYE!')

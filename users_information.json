@@ -3,7 +3,7 @@
         "password": "Abdulfeez04",
         "firstname": "ABDULHAFIZ",
         "lastname": "AHMAD",
-        "balance": 2000,
+        "balance": 41000,
         "pin": "4583"
     },
     "mrfe3z04": {
@@ -16,13 +16,19 @@
         "password": "qwertyYUI0",
         "firstname": "JOHN",
         "lastname": "SMITH",
+        "balance": 2000
+    },
+    "lingsnow": {
+        "password": "Abdulfeez04",
+        "firstname": "1",
+        "lastname": ".",
         "balance": 0
     },
-    "gogfonsm": {
-        "password": "Amkfty679",
-        "firstname": "ABDULHAFIZ",
-        "lastname": "AHMAD",
-        "balance": 0
-    },
-    "Dheeya": 8100
+    "deks": {
+        "password": "FeeeeeZZZ01",
+        "firstname": "DEKI",
+        "lastname": "FEEZ",
+        "balance": 1199999980000,
+        "pin": "0012"
+    }
 }
